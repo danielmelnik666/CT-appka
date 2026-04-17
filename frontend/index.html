@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detekcia inváznych druhov rastlín</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌿 Detekcia inváznych druhov rastlín</h1>
+            <p class="subtitle">Webová aplikácia na identifikáciu inváznych druhov</p>
+        </header>
+
+        <main>
+            <section class="status-card">
+                <h2>Stav aplikácie</h2>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="label">Frontend:</span>
+                        <span class="value success">✓ Online</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Backend:</span>
+                        <span class="value" id="backend-status">Nepripojený</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">AI služba:</span>
+                        <span class="value" id="ai-status">Nepripojená</span>
+                    </div>
+                </div>
+                <button id="test-button" class="btn">Otestovať pripojenie</button>
+                <div id="result" class="result-box"></div>
+            </section>
+
+            <section class="info">
+                <h2>O projekte</h2>
+                <p>
+                    Táto aplikácia využíva neurónovú sieť MobileNetV2 na identifikáciu
+                    inváznych druhov rastlín z nahranej fotografie.
+                </p>
+                <p>
+                    <strong>Architektúra:</strong> Frontend a backend sú hostované na Azure,
+                    AI inferencia prebieha na AWS Lambda.
+                </p>
+            </section>
+        </main>
+
+        <footer>
+            <p>Tímový projekt · TUKE · 2026</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+EOF

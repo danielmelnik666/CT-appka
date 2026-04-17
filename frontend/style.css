@@ -1,0 +1,149 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #2d3e2d;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #1b5e20;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #558b2f;
+    font-size: 1.1rem;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+    color: #2e7d32;
+    margin-bottom: 1.5rem;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f1f8e9;
+    border-radius: 8px;
+    border-left: 4px solid #8bc34a;
+}
+
+.label {
+    font-weight: 600;
+    color: #33691e;
+}
+
+.value {
+    color: #616161;
+    font-weight: 500;
+}
+
+.value.success {
+    color: #2e7d32;
+    font-weight: 700;
+}
+
+.value.error {
+    color: #c62828;
+    font-weight: 700;
+}
+
+.btn {
+    background: #2e7d32;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: #1b5e20;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.result-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fafafa;
+    border-radius: 8px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #424242;
+    min-height: 60px;
+    display: none;
+}
+
+.result-box.visible {
+    display: block;
+}
+
+.info p {
+    margin-bottom: 1rem;
+    color: #424242;
+}
+
+footer {
+    text-align: center;
+    margin-top: 3rem;
+    color: #558b2f;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    section {
+        padding: 1.5rem;
+    }
+}

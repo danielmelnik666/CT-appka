@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -11,40 +10,76 @@
     <div class="container">
         <header>
             <h1>🌿 Detekcia inváznych druhov rastlín</h1>
-            <p class="subtitle">Webová aplikácia na identifikáciu inváznych druhov</p>
+            <p class="subtitle">Nahraj fotku rastliny a zisti, či ide o invázny druh</p>
         </header>
 
         <main>
-            <section class="status-card">
-                <h2>Stav aplikácie</h2>
-                <div class="status-grid">
-                    <div class="status-item">
-                        <span class="label">Frontend:</span>
-                        <span class="value success">✓ Online</span>
+            <!-- UPLOAD SEKCIA -->
+            <section class="upload-section">
+                <h2>Analýza obrázka</h2>
+                
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="file-input" accept="image/*" hidden>
+                    <div class="upload-placeholder" id="upload-placeholder">
+                        <div class="upload-icon">📸</div>
+                        <p class="upload-text">Klikni sem alebo pretiahni fotku</p>
+                        <p class="upload-hint">Podporované: JPG, PNG, WEBP (max 10 MB)</p>
                     </div>
-                    <div class="status-item">
-                        <span class="label">Backend:</span>
-                        <span class="value" id="backend-status">Nepripojený</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="label">AI služba:</span>
-                        <span class="value" id="ai-status">Nepripojená</span>
-                    </div>
+                    <img id="image-preview" class="image-preview" alt="Preview">
                 </div>
-                <button id="test-button" class="btn">Otestovať pripojenie</button>
-                <div id="result" class="result-box"></div>
+
+                <div class="button-group">
+                    <button id="analyze-button" class="btn btn-primary" disabled>
+                        🔍 Analyzovať
+                    </button>
+                    <button id="reset-button" class="btn btn-secondary" style="display: none;">
+                        🔄 Nová fotka
+                    </button>
+                </div>
+
+                <!-- LOADING -->
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzujem obrázok... (môže to trvať 10-30 sekúnd)</p>
+                </div>
+
+                <!-- RESULT -->
+                <div id="result-card" class="result-card"></div>
             </section>
 
+            <!-- O PROJEKTE -->
             <section class="info">
                 <h2>O projekte</h2>
                 <p>
-                    Táto aplikácia využíva neurónovú sieť MobileNetV2 na identifikáciu
-                    inváznych druhov rastlín z nahranej fotografie.
+                    Táto aplikácia využíva neurónovú sieť <strong>MobileNetV2</strong> na
+                    identifikáciu inváznych druhov rastlín z nahranej fotografie.
                 </p>
                 <p>
-                    <strong>Architektúra:</strong> Frontend a backend sú hostované na Azure,
-                    AI inferencia prebieha na AWS Lambda.
+                    <strong>Architektúra:</strong> Frontend a backend sú hostované na
+                    <strong>Azure</strong>, AI inferencia prebieha na <strong>Hugging Face Spaces</strong>
+                    (iný cloud provider).
                 </p>
+            </section>
+
+            <!-- STATUS (kolapsovateľný debug panel) -->
+            <section class="status-section">
+                <details>
+                    <summary><h2 style="display: inline-block;">Stav systému</h2></summary>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="label">Frontend:</span>
+                            <span class="value success">✓ Online</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Backend:</span>
+                            <span class="value" id="backend-status">Testujem...</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">AI služba:</span>
+                            <span class="value" id="ai-status">Čaká...</span>
+                        </div>
+                    </div>
+                </details>
             </section>
         </main>
 
@@ -56,4 +91,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-EOF

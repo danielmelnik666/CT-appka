@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 app = Flask(__name__)
 
-# CORS - povolíme volania z frontendu
+# CORS
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # URL AI service na Hugging Face Space
@@ -22,18 +22,16 @@ HF_SPACE_URL = os.environ.get(
 
 @app.route("/")
 def root():
-    """Root endpoint - info o API"""
     return jsonify({
         "service": "Invasive Plants Detection API",
-        "version": "1.0.0",
-        "status": "running",
-        "docs": "/api/ping for health check"
+        "version": "2.0.0",
+        "model": "binary classifier (MobileNetV2)",
+        "status": "running"
     })
 
 
 @app.route("/api/ping")
 def ping():
-    """Health check endpoint - overuje, že backend žije"""
     return jsonify({
         "status": "ok",
         "message": "Backend is alive",
@@ -44,13 +42,13 @@ def ping():
 
 @app.route("/api/info")
 def info():
-    """Info o serveri - užitočné pre debug"""
     return jsonify({
         "service": "invasive-plants-backend",
         "python_version": os.sys.version,
         "hostname": os.environ.get("WEBSITE_HOSTNAME", "localhost"),
         "environment": os.environ.get("ENVIRONMENT", "development"),
-        "ai_service_url": HF_SPACE_URL
+        "ai_service_url": HF_SPACE_URL,
+        "model_type": "binary_classifier_v2"
     })
 
 
@@ -58,30 +56,23 @@ def info():
 def predict():
     """
     Endpoint pre predikciu, či je rastlina invázna.
-    
-    Workflow:
-    1. Prijme obrázok z frontendu (multipart form)
-    2. Pošle obrázok na Hugging Face Space (AI service)
-    3. Spracuje raw scores - binárna klasifikácia
-    4. Vráti jednoduchý výsledok: invázna / nie je invázna
+    Pracuje s binárnym modelom (vracia 1 hodnotu - pravdepodobnosť INVASIVE).
     """
-    # Validácia vstupu
     if 'image' not in request.files:
         return jsonify({
             "error": "No image provided",
             "message": "Pošli obrázok v poli 'image' (multipart form)."
         }), 400
-    
+
     image_file = request.files['image']
-    
+
     if image_file.filename == '':
         return jsonify({"error": "Empty filename"}), 400
-    
+
     # Volanie AI service na Hugging Face
     try:
         hf_endpoint = f"{HF_SPACE_URL}/predict"
-        
-        # Prepošli obrázok do HF Space
+
         files = {
             'file': (
                 image_file.filename,
@@ -89,55 +80,51 @@ def predict():
                 image_file.mimetype or 'image/jpeg'
             )
         }
-        
+
         hf_response = requests.post(
             hf_endpoint,
             files=files,
-            timeout=60  # HF Space môže mať cold start
+            timeout=60
         )
         hf_response.raise_for_status()
-        
+
         data = hf_response.json()
         scores = data.get('scores', [])
-        
-        if len(scores) != 9:
+
+        if len(scores) != 1:
             return jsonify({
                 "error": "Invalid AI response",
-                "message": f"Expected 9 scores, got {len(scores)}"
+                "message": f"Expected 1 score (binary classifier), got {len(scores)}"
             }), 502
-        
+
     except requests.exceptions.Timeout:
         return jsonify({
             "error": "AI service timeout",
             "message": "AI služba nereaguje (pravdepodobne sa prebúdza). Skús to znova o chvíľu."
         }), 504
-    
+
     except requests.exceptions.RequestException as e:
         return jsonify({
             "error": "AI service unavailable",
             "message": str(e)
         }), 503
-    
+
     # BINÁRNA KLASIFIKÁCIA
-    # Indexy 0-7 = invázne druhy
-    # Index 8 = Negative (nie je invázna)
-    invasive_score = sum(scores[0:8])
-    negative_score = scores[8]
-    
-    # Prah 50% - ak je súčet inváznych scores > 50%, je to invázna
+    # Model vracia 1 hodnotu: pravdepodobnosť že je INVÁZNA (0.0 - 1.0)
+    invasive_score = scores[0]
+    negative_score = 1 - invasive_score
+
+    # Prah 50%
     is_invasive = invasive_score > 0.5
-    
-    # Confidence = ako moc si je model istý svojím rozhodnutím
     confidence = invasive_score if is_invasive else negative_score
-    
-    # Pripravenie odpovede pre frontend
+
     if is_invasive:
         message = "Na fotke je pravdepodobne invázny druh rastliny."
         recommendation = "Odporúčame nahlásiť to miestnym úradom alebo zelenej linke životného prostredia."
     else:
         message = "Na fotke pravdepodobne nie je invázny druh rastliny."
         recommendation = "Žiadna akcia nie je potrebná."
-    
+
     return jsonify({
         "is_invasive": bool(is_invasive),
         "confidence": round(float(confidence), 3),
@@ -148,7 +135,8 @@ def predict():
         "debug": {
             "invasive_score": round(float(invasive_score), 3),
             "negative_score": round(float(negative_score), 3),
-            "raw_scores": [round(float(s), 3) for s in scores]
+            "raw_scores": [round(float(s), 3) for s in scores],
+            "model_type": "binary_v2"
         }
     })
 
@@ -164,5 +152,5 @@ def server_error(error):
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port, debug=True)

@@ -3,91 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detekcia inváznych druhov rastlín</title>
+    <title>FloraGuard — Detekcia inváznych rastlín</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🌿 Detekcia inváznych druhov rastlín</h1>
-            <p class="subtitle">Nahraj fotku rastliny a zisti, či ide o invázny druh</p>
-        </header>
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo" data-page="home">
+                <span class="logo-icon">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M14 22 C14 22 7 16 7 11 C7 7.5 10.5 5 14 5 C17.5 5 21 7.5 21 11 C21 16 14 22 14 22Z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="14" cy="11" r="2.5" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="logo-text">FloraGuard</span>
+            </a>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="home">Domov</a>
+                <a href="#" class="nav-link" data-page="detect">Detekcia</a>
+                <a href="#" class="nav-link" data-page="history">História</a>
+                <a href="#" class="nav-link" data-page="about">O projekte</a>
+            </div>
+            <button class="btn btn-primary nav-cta" data-page="detect">Analyzovať →</button>
+            <button class="hamburger" id="hamburger">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <div class="mobile-menu" id="mobile-menu">
+            <a href="#" class="nav-link" data-page="home">Domov</a>
+            <a href="#" class="nav-link" data-page="detect">Detekcia</a>
+            <a href="#" class="nav-link" data-page="history">História</a>
+            <a href="#" class="nav-link" data-page="about">O projekte</a>
+        </div>
+    </nav>
 
-        <main>
-            <!-- UPLOAD SEKCIA -->
-            <section class="upload-section">
-                <h2>Analýza obrázka</h2>
-                
-                <div class="upload-area" id="upload-area">
-                    <input type="file" id="file-input" accept="image/*" hidden>
-                    <div class="upload-placeholder" id="upload-placeholder">
-                        <div class="upload-icon">📸</div>
-                        <p class="upload-text">Klikni sem alebo pretiahni fotku</p>
-                        <p class="upload-hint">Podporované: JPG, PNG, WEBP (max 10 MB)</p>
+    <div id="app">
+        <!-- HOME PAGE -->
+        <div id="page-home" class="page active">
+            <section class="hero">
+                <div class="hero-bg">
+                    <div class="hero-orb hero-orb-1"></div>
+                    <div class="hero-orb hero-orb-2"></div>
+                </div>
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span>
+                        Poháňané AI · MobileNetV2
                     </div>
-                    <img id="image-preview" class="image-preview" alt="Preview">
-                </div>
-
-                <div class="button-group">
-                    <button id="analyze-button" class="btn btn-primary" disabled>
-                        🔍 Analyzovať
-                    </button>
-                    <button id="reset-button" class="btn btn-secondary" style="display: none;">
-                        🔄 Nová fotka
-                    </button>
-                </div>
-
-                <!-- LOADING -->
-                <div id="loading" class="loading">
-                    <div class="spinner"></div>
-                    <p>Analyzujem obrázok... (môže to trvať 10-30 sekúnd)</p>
-                </div>
-
-                <!-- RESULT -->
-                <div id="result-card" class="result-card"></div>
-            </section>
-
-            <!-- O PROJEKTE -->
-            <section class="info">
-                <h2>O projekte</h2>
-                <p>
-                    Táto aplikácia využíva neurónovú sieť <strong>MobileNetV2</strong> na
-                    identifikáciu inváznych druhov rastlín z nahranej fotografie.
-                </p>
-                <p>
-                    <strong>Architektúra:</strong> Frontend a backend sú hostované na
-                    <strong>Azure</strong>, AI inferencia prebieha na <strong>Hugging Face Spaces</strong>
-                    (iný cloud provider).
-                </p>
-            </section>
-
-            <!-- STATUS (kolapsovateľný debug panel) -->
-            <section class="status-section">
-                <details>
-                    <summary><h2 style="display: inline-block;">Stav systému</h2></summary>
-                    <div class="status-grid">
-                        <div class="status-item">
-                            <span class="label">Frontend:</span>
-                            <span class="value success">✓ Online</span>
+                    <h1 class="hero-title">
+                        Chráňte ekosystém<br>
+                        <em>jednou fotografiou</em>
+                    </h1>
+                    <p class="hero-subtitle">
+                        FloraGuard využíva neurónovú sieť na detekciu inváznych rastlín.
+                        Nahrajte fotografiu a okamžite zistite, či ohrozuje vaše okolie.
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-lg" data-page="detect">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            Analyzovať fotografiu
+                        </button>
+                        <button class="btn btn-ghost btn-lg" data-page="about">Ako to funguje →</button>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-num">91%</span>
+                            <span class="stat-label">Presnosť modelu</span>
                         </div>
-                        <div class="status-item">
-                            <span class="label">Backend:</span>
-                            <span class="value" id="backend-status">Testujem...</span>
+                        <div class="stat-divider"></div>
+                        <div class="stat">
+                            <span class="stat-num">~15s</span>
+                            <span class="stat-label">Priemerný čas</span>
                         </div>
-                        <div class="status-item">
-                            <span class="label">AI služba:</span>
-                            <span class="value" id="ai-status">Čaká...</span>
+                        <div class="stat-divider"></div>
+                        <div class="stat">
+                            <span class="stat-num">3</span>
+                            <span class="stat-label">Cloudové vrstvy</span>
                         </div>
                     </div>
-                </details>
+                </div>
+                <div class="hero-visual">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="phone-img-placeholder">
+                                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                            <div class="phone-result-badge invasive">
+                                <span>⚠ Invázny druh</span>
+                                <span class="conf">91%</span>
+                            </div>
+                        </div>
+                        <div class="phone-glow"></div>
+                    </div>
+                </div>
             </section>
-        </main>
 
-        <footer>
-            <p>Tímový projekt · TUKE · 2026</p>
-        </footer>
+            <section class="process-section">
+                <div class="section-header">
+                    <span class="section-tag">Ako to funguje</span>
+                    <h2>Tri kroky k výsledku</h2>
+                </div>
+                <div class="process-steps">
+                    <div class="step-card">
+                        <div class="step-num">01</div>
+                        <div class="step-icon">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <h3>Nahrajte fotografiu</h3>
+                        <p>Pretiahnite alebo vyberte fotografiu rastliny (JPG, PNG, WEBP, max 10 MB)</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-num">02</div>
+                        <div class="step-icon">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                        </div>
+                        <h3>AI analýza</h3>
+                        <p>Obrázok putuje cez Azure backend na Hugging Face Space s modelom MobileNetV2</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-num">03</div>
+                        <div class="step-icon">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <h3>Výsledok detekcie</h3>
+                        <p>Získate jasnú odpoveď s mierou istoty a konkrétnym odporúčaním</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cta-section">
+                <div class="cta-card">
+                    <h2>Pripravení na analýzu?</h2>
+                    <p>Spustite detekciu za menej ako 30 sekúnd.</p>
+                    <button class="btn btn-primary btn-lg" data-page="detect">Začať analýzu</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- DETECT PAGE -->
+        <div id="page-detect" class="page">
+            <div class="page-container">
+                <div class="page-header">
+                    <span class="section-tag">Detekcia</span>
+                    <h1>Analyzovať fotografiu</h1>
+                    <p class="page-subtitle">Nahrajte fotografiu rastliny a AI model vyhodnotí, či ide o invázny druh.</p>
+                </div>
+                <div class="detect-layout">
+                    <div class="detect-main">
+                        <div class="upload-card">
+                            <div class="upload-area" id="upload-area">
+                                <input type="file" id="file-input" accept="image/jpeg,image/jpg,image/png,image/webp" hidden>
+                                <div class="upload-placeholder" id="upload-placeholder">
+                                    <div class="upload-icon-wrap">
+                                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    </div>
+                                    <p class="upload-title">Pretiahnite fotografiu sem</p>
+                                    <p class="upload-or">alebo</p>
+                                    <button class="btn btn-outline" id="browse-btn">Vybrať zo zariadenia</button>
+                                    <p class="upload-hint">JPG, JPEG, PNG, WEBP · max 10 MB</p>
+                                </div>
+                                <div class="upload-preview-wrap" id="upload-preview-wrap" style="display:none">
+                                    <img id="image-preview" alt="Preview rastliny">
+                                    <div class="preview-overlay">
+                                        <button class="preview-change-btn" id="preview-change-btn">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                            Zmeniť
+                                        </button>
+                                    </div>
+                                    <div class="file-info" id="file-info"></div>
+                                </div>
+                            </div>
+
+                            <div class="error-banner" id="error-banner" style="display:none">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span id="error-text"></span>
+                                <button class="error-close" id="error-close">✕</button>
+                            </div>
+
+                            <div class="loading-state" id="loading-state" style="display:none">
+                                <div class="loading-spinner">
+                                    <div class="spinner-ring"></div>
+                                    <div class="spinner-ring spinner-ring-2"></div>
+                                </div>
+                                <p class="loading-title">Analyzujem fotografiu…</p>
+                                <p class="loading-sub">AI model spracováva obrázok · 10–30 sekúnd</p>
+                                <div class="loading-steps">
+                                    <div class="lstep active" id="lstep-1"><span class="lstep-dot"></span> Odosielanie na backend</div>
+                                    <div class="lstep" id="lstep-2"><span class="lstep-dot"></span> Volanie AI (Hugging Face)</div>
+                                    <div class="lstep" id="lstep-3"><span class="lstep-dot"></span> Vyhodnocovanie výsledku</div>
+                                </div>
+                            </div>
+
+                            <div class="detect-actions" id="detect-actions">
+                                <button class="btn btn-primary btn-analyze" id="analyze-button" disabled>
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                    Spustiť analýzu
+                                </button>
+                                <button class="btn btn-ghost" id="reset-button" style="display:none">Resetovať</button>
+                            </div>
+                        </div>
+
+                        <div id="result-container" style="display:none">
+                            <div class="result-card" id="result-card"></div>
+                        </div>
+                    </div>
+
+                    <div class="detect-sidebar">
+                        <div class="sidebar-card">
+                            <h3>Tipy pre lepšie výsledky</h3>
+                            <ul class="tips-list">
+                                <li><span class="tip-icon">🌿</span> Odfotografujte celú rastlinu alebo charakteristické listy</li>
+                                <li><span class="tip-icon">☀️</span> Použite dobré prirodzené osvetlenie</li>
+                                <li><span class="tip-icon">🔍</span> Zaostrite na rastlinu, pozadie nech je čisté</li>
+                                <li><span class="tip-icon">📐</span> Fotografujte zblízka — viditeľné detaily listov</li>
+                            </ul>
+                        </div>
+                        <div class="sidebar-card status-card">
+                            <h3>Stav systému</h3>
+                            <div class="status-row">
+                                <span>Frontend</span>
+                                <span class="status-badge ok">Online</span>
+                            </div>
+                            <div class="status-row">
+                                <span>Backend API</span>
+                                <span class="status-badge pending" id="sidebar-backend-status">Testuje sa…</span>
+                            </div>
+                            <div class="status-row">
+                                <span>Databáza (PostgreSQL)</span>
+                                <span class="status-badge pending" id="sidebar-db-status">—</span>
+                            </div>
+                            <div class="status-row">
+                                <span>AI (Hugging Face)</span>
+                                <span class="status-badge pending" id="sidebar-ai-status">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY PAGE -->
+        <div id="page-history" class="page">
+            <div class="page-container">
+                <div class="page-header">
+                    <span class="section-tag">História</span>
+                    <h1>Predchádzajúce detekcie</h1>
+                    <p class="page-subtitle">Prehľad všetkých vykonaných analýz rastlín.</p>
+                </div>
+                <div id="history-content">
+                    <div class="loading-inline">
+                        <div class="spinner-sm"></div>
+                        <span>Načítavam históriu…</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABOUT PAGE -->
+        <div id="page-about" class="page">
+            <div class="page-container">
+                <div class="page-header">
+                    <span class="section-tag">Architektúra</span>
+                    <h1>O projekte FloraGuard</h1>
+                    <p class="page-subtitle">Školský projekt demonštrujúci moderný multi-cloud prístup k nasadeniu AI aplikácie.</p>
+                </div>
+
+                <div class="about-intro">
+                    <p>FloraGuard je webová aplikácia na detekciu inváznych druhov rastlín pomocou neurónovej siete <strong>MobileNetV2</strong>. Aplikácia je rozdelená do troch nezávislých cloudových vrstiev, čo demonštruje reálnu produkčnú architektúru.</p>
+                </div>
+
+                <div class="arch-diagram">
+                    <div class="arch-node frontend-node">
+                        <div class="arch-node-icon">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 2 2-2 2M13 15h2"/></svg>
+                        </div>
+                        <div class="arch-node-label">Frontend</div>
+                        <div class="arch-node-tech">Azure Static Web Apps</div>
+                        <div class="arch-node-detail">HTML · CSS · JavaScript</div>
+                    </div>
+                    <div class="arch-connector">
+                        <div class="arch-connector-line"></div>
+                        <span class="arch-connector-label">HTTPS / REST</span>
+                    </div>
+                    <div class="arch-node backend-node">
+                        <div class="arch-node-icon">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        </div>
+                        <div class="arch-node-label">Backend API</div>
+                        <div class="arch-node-tech">Azure App Service</div>
+                        <div class="arch-node-detail">Python · Flask</div>
+                    </div>
+                    <div class="arch-connector arch-connector-cross">
+                        <div class="arch-connector-line"></div>
+                        <span class="arch-connector-label cross-cloud">⚡ Cross-cloud</span>
+                    </div>
+                    <div class="arch-node ai-node">
+                        <div class="arch-node-icon">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        </div>
+                        <div class="arch-node-label">AI Inferencia</div>
+                        <div class="arch-node-tech">Hugging Face Spaces</div>
+                        <div class="arch-node-detail">MobileNetV2</div>
+                    </div>
+                </div>
+
+                <div class="about-highlight">
+                    <div class="highlight-icon">⚡</div>
+                    <div><strong>Kľúčový architektonický princíp:</strong> AI inferencia prebieha na <strong>Hugging Face Spaces</strong> — inom cloud providerovi ako backend (Azure). Toto oddelenie demonštruje multi-cloud stratégiu a nezávislosť komponentov.</div>
+                </div>
+
+                <div class="arch-cards">
+                    <div class="arch-detail-card">
+                        <div class="adc-header azure-h"><span class="adc-badge azure-b">Azure</span><h3>Frontend</h3></div>
+                        <ul><li>Statický hosting bez servera</li><li>Globálna CDN distribúcia</li><li>Automatický deployment z GitHub Actions</li><li>Bezpečný HTTPS endpoint</li></ul>
+                    </div>
+                    <div class="arch-detail-card">
+                        <div class="adc-header azure-h"><span class="adc-badge azure-b">Azure</span><h3>Backend API</h3></div>
+                        <ul><li>Flask REST API v Pythone</li><li>Sprostredkováva komunikáciu s AI</li><li>CORS konfigurácia pre SPA</li><li>Endpoint <code>/api/predict</code> · <code>/api/ping</code></li></ul>
+                    </div>
+                    <div class="arch-detail-card">
+                        <div class="adc-header hf-h"><span class="adc-badge hf-b">Hugging Face</span><h3>AI Služba</h3></div>
+                        <ul><li>Model MobileNetV2 — binárny klasifikátor</li><li>Vstup: obrázok rastliny (multipart)</li><li>Výstup: skóre invazívnosti (0.0–1.0)</li><li>Iný cloud ako backend — oddelená zodpovednosť</li></ul>
+                    </div>
+                    <div class="arch-detail-card">
+                        <div class="adc-header db-h"><span class="adc-badge db-b">Databáza</span><h3>PostgreSQL</h3></div>
+                        <ul><li>Supabase / Azure PostgreSQL</li><li>Ukladanie histórie detekcií</li><li>Metadáta: dátum, výsledok, skóre</li><li>Možnosť budúceho rozšírenia</li></ul>
+                    </div>
+                </div>
+
+                <div class="tech-stack-section">
+                    <h2>Použité technológie</h2>
+                    <div class="tech-tags">
+                        <span class="tech-tag">HTML5</span><span class="tech-tag">CSS3</span><span class="tech-tag">Vanilla JS</span><span class="tech-tag">Python 3</span><span class="tech-tag">Flask</span><span class="tech-tag">MobileNetV2</span><span class="tech-tag">Azure Static Web Apps</span><span class="tech-tag">Azure App Service</span><span class="tech-tag">Hugging Face Spaces</span><span class="tech-tag">GitHub Actions</span><span class="tech-tag">PostgreSQL</span>
+                    </div>
+                </div>
+
+                <div class="team-footer">
+                    <p>Tímový projekt · Technická univerzita v Košiciach · 2026</p>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="logo-text">FloraGuard</span>
+                <span class="footer-sep">·</span>
+                <span>Detekcia inváznych rastlín pomocou AI</span>
+            </div>
+            <div class="footer-links">
+                <a href="#" data-page="home">Domov</a>
+                <a href="#" data-page="detect">Detekcia</a>
+                <a href="#" data-page="history">História</a>
+                <a href="#" data-page="about">O projekte</a>
+            </div>
+            <p class="footer-copy">Tímový projekt · TUKE · 2026</p>
+        </div>
+    </footer>
+
+    <script src="services/api.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/uploader.js"></script>
+    <script src="components/result.js"></script>
+    <script src="components/history.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

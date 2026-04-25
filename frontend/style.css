@@ -381,3 +381,61 @@ footer {
         width: 100%;
     }
 }
+
+/* ── Debug info (výsledková karta) ── */
+.result-debug {
+    font-size: 0.78rem;
+    color: var(--gray-400);
+    padding: 8px 0 0;
+}
+.result-debug details summary {
+    cursor: pointer;
+    color: var(--gray-400);
+    font-size: 0.78rem;
+}
+.result-debug details span {
+    display: block;
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--gray-600);
+}
+.result-message-inline {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    margin-top: 4px;
+}
+/* História — filename */
+.history-filename {
+    font-size: 0.78rem;
+    color: var(--gray-400);
+    margin-bottom: 6px;
+    font-style: italic;
+}
+.history-conf-num {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--green-700);
+    line-height: 1;
+    display: block;
+    text-align: right;
+}
+.history-conf-label {
+    font-size: 0.72rem;
+    color: var(--gray-400);
+    text-align: right;
+    display: block;
+    letter-spacing: 0.03em;
+}
+.history-message {
+    font-size: 0.82rem;
+    color: var(--gray-500);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+/* História — farebný indikátor ľavého okraja */
+.hc-invasive { border-left: 3px solid #dc2626; }
+.hc-safe     { border-left: 3px solid var(--green-400); }

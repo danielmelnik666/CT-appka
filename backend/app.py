@@ -5,10 +5,12 @@ Flask application hosted on Azure App Service
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
+import uuid
 import requests
 import psycopg2
 import psycopg2.extras
 from datetime import datetime, timezone
+from azure.storage.blob import BlobServiceClient
 
 app = Flask(__name__)
 
@@ -21,13 +23,12 @@ HF_SPACE_URL = os.environ.get(
     "https://danielmelnik666-invasive-plant-api.hf.space"
 )
 
-# PostgreSQL connection string z Azure (nastavená ako env variable na Azure App Service)
-# Formát: postgresql://username:password@hostname/dbname?sslmode=require
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
+AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING", "")
+AZURE_STORAGE_CONTAINER = os.environ.get("AZURE_STORAGE_CONTAINER", "detections")
 
 
 def get_db_connection():
-    """Vytvorí spojenie s PostgreSQL databázou."""
     if not DATABASE_URL:
         return None
     try:
@@ -37,8 +38,27 @@ def get_db_connection():
         return None
 
 
-def save_detection(image_name, is_invasive, confidence, confidence_percent, message, recommendation, client_ip):
-    """Uloží výsledok detekcie do databázy. Ak DB nie je dostupná, ticho preskočí."""
+def upload_image_to_blob(image_file):
+    """Uploadne obrázok do Azure Blob Storage a vráti jeho verejnú URL."""
+    if not AZURE_STORAGE_CONNECTION_STRING:
+        return None
+    try:
+        ext = image_file.filename.rsplit('.', 1)[-1].lower() if '.' in image_file.filename else 'jpg'
+        blob_name = f"{uuid.uuid4()}.{ext}"
+
+        blob_service = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+        blob_client = blob_service.get_blob_client(container=AZURE_STORAGE_CONTAINER, blob=blob_name)
+
+        image_file.stream.seek(0)
+        blob_client.upload_blob(image_file.stream, overwrite=True)
+
+        return blob_client.url
+    except Exception:
+        return None
+
+
+def save_detection(image_name, image_url, is_invasive, confidence, confidence_percent, message, recommendation, client_ip):
+    """Uloží výsledok detekcie do databázy."""
     conn = get_db_connection()
     if conn is None:
         return
@@ -48,10 +68,10 @@ def save_detection(image_name, is_invasive, confidence, confidence_percent, mess
             cur.execute(
                 """
                 INSERT INTO detections
-                    (image_name, is_invasive, confidence, confidence_percent, message, recommendation, client_ip)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    (image_name, image_url, is_invasive, confidence, confidence_percent, message, recommendation, client_ip)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
-                (image_name, is_invasive, confidence, confidence_percent, message, recommendation, client_ip)
+                (image_name, image_url, is_invasive, confidence, confidence_percent, message, recommendation, client_ip)
             )
         conn.commit()
     finally:
@@ -81,6 +101,7 @@ def ping():
 @app.route("/api/info")
 def info():
     db_connected = get_db_connection() is not None
+    storage_connected = bool(AZURE_STORAGE_CONNECTION_STRING)
     return jsonify({
         "service": "invasive-plants-backend",
         "python_version": os.sys.version,
@@ -88,16 +109,13 @@ def info():
         "environment": os.environ.get("ENVIRONMENT", "development"),
         "ai_service_url": HF_SPACE_URL,
         "model_type": "binary_classifier_v2",
-        "database_connected": db_connected
+        "database_connected": db_connected,
+        "storage_connected": storage_connected
     })
 
 
 @app.route("/api/predict", methods=["POST"])
 def predict():
-    """
-    Endpoint pre predikciu, či je rastlina invázna.
-    Pracuje s binárnym modelom (vracia 1 hodnotu - pravdepodobnosť INVASIVE).
-    """
     if 'image' not in request.files:
         return jsonify({
             "error": "No image provided",
@@ -109,10 +127,14 @@ def predict():
     if image_file.filename == '':
         return jsonify({"error": "Empty filename"}), 400
 
+    # Upload obrázka do Azure Blob Storage
+    image_url = upload_image_to_blob(image_file)
+
     # Volanie AI service na Hugging Face
     try:
         hf_endpoint = f"{HF_SPACE_URL}/predict"
 
+        image_file.stream.seek(0)
         files = {
             'file': (
                 image_file.filename,
@@ -149,12 +171,9 @@ def predict():
             "message": str(e)
         }), 503
 
-    # BINÁRNA KLASIFIKÁCIA
-    # Model vracia 1 hodnotu: pravdepodobnosť že je INVÁZNA (0.0 - 1.0)
     invasive_score = scores[0]
     negative_score = 1 - invasive_score
 
-    # Prah 50%
     is_invasive = invasive_score > 0.5
     confidence = invasive_score if is_invasive else negative_score
 
@@ -165,10 +184,10 @@ def predict():
         message = "Na fotke pravdepodobne nie je invázny druh rastliny."
         recommendation = "Žiadna akcia nie je potrebná."
 
-    # Uloženie výsledku do databázy
     client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     save_detection(
         image_name=image_file.filename,
+        image_url=image_url,
         is_invasive=bool(is_invasive),
         confidence=round(float(confidence), 3),
         confidence_percent=round(float(confidence) * 100, 1),
@@ -183,6 +202,7 @@ def predict():
         "confidence_percent": round(float(confidence) * 100, 1),
         "message": message,
         "recommendation": recommendation,
+        "image_url": image_url,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "debug": {
             "invasive_score": round(float(invasive_score), 3),
@@ -195,7 +215,6 @@ def predict():
 
 @app.route("/api/history")
 def history():
-    """Vráti posledných 50 detekcií z databázy."""
     conn = get_db_connection()
     if conn is None:
         return jsonify({"error": "Database not available"}), 503
@@ -204,7 +223,7 @@ def history():
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
                 """
-                SELECT id, image_name, is_invasive, confidence_percent, message, timestamp, client_ip
+                SELECT id, image_name, image_url, is_invasive, confidence_percent, message, timestamp, client_ip
                 FROM detections
                 ORDER BY timestamp DESC
                 LIMIT 50

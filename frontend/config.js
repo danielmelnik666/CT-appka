@@ -1,1 +1,1 @@
-window.FLORA_API_URL = 'http://127.0.0.1:8000';
+window.FLORA_API_URL = 'https://invasive-plants-backend-dm.azurewebsites.net';

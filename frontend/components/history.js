@@ -73,7 +73,10 @@ function renderHistoryCard(item) {
     return `
         <div class="history-card ${isInvasive ? 'hc-invasive' : 'hc-safe'}">
             <div class="history-thumb-placeholder">
-                ${isInvasive ? '⚠️' : '🌿'}
+                ${item.image_url
+                ? `<img src="${item.image_url}" alt="${displayName}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                : (isInvasive ? '⚠️' : '🌿')
+            }
             </div>
             <div class="history-info">
                 <h3>${isInvasive ? 'Invázny druh' : 'Bezpečný druh'}</h3>

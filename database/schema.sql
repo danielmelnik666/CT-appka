@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS detections (
     id                 SERIAL PRIMARY KEY,
     image_name         VARCHAR(255) NOT NULL,
+    image_url          TEXT,
     is_invasive        BOOLEAN      NOT NULL,
     confidence         FLOAT        NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
     confidence_percent FLOAT        NOT NULL CHECK (confidence_percent >= 0 AND confidence_percent <= 100),

@@ -22,17 +22,6 @@ async function loadHistoryPage() {
         // Načítaj z backendu (pole detection objektov)
         let items = await apiHistory();
 
-        // Zlúč s lokálnou históriou z localStorage
-        try {
-            const local = JSON.parse(localStorage.getItem('floraLocalHistory') || '[]');
-            const backendIds = new Set(items.map(i => String(i.id)));
-            local.forEach(l => {
-                if (!backendIds.has(String(l.id))) items.push(l);
-            });
-        } catch {
-            // ignore
-        }
-
         // Zoraď podľa dátumu zostupne
         items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 

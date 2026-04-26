@@ -1,11 +1,5 @@
 /**
- * FloraGuard — History Component
- *
- * Backend GET /api/history vracia:
- * { count: N, detections: [ {id, image_name, is_invasive, confidence_percent, message, timestamp, client_ip} ] }
- *
- * apiHistory() v api.js to normalizuje na pole detections[].
- * Dopĺňame aj lokálnu históriu z localStorage.
+ * History page - načíta a zobrazí históriu detekcií z backendu (databázy).
  */
 
 async function loadHistoryPage() {
@@ -19,10 +13,10 @@ async function loadHistoryPage() {
         </div>`;
 
     try {
-        // Načítaj z backendu (pole detection objektov)
+        // Načítaj históriu z backendu (databázy)
         let items = await apiHistory();
 
-        // Zoraď podľa dátumu zostupne
+        // Zoraď podľa dátumu zostupne (najnovšie prvé)
         items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         if (!items || items.length === 0) {
@@ -31,7 +25,6 @@ async function loadHistoryPage() {
         }
 
         container.innerHTML = `<div class="history-grid">${items.map(renderHistoryCard).join('')}</div>`;
-
     } catch (err) {
         container.innerHTML = `
             <div class="empty-state">
@@ -43,19 +36,24 @@ async function loadHistoryPage() {
     }
 }
 
+
 /**
  * Renderuje jeden riadok histórie.
  * Polia z backendu: id, image_name, is_invasive, confidence_percent, message, timestamp, client_ip
  */
 function renderHistoryCard(item) {
     const date = new Date(item.timestamp).toLocaleString('sk-SK', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 
     const conf = Math.round(item.confidence_percent ?? 0);
     const isInvasive = item.is_invasive;
     const fileName = item.image_name || 'neznámy súbor';
+
     // Skrátime dlhé názvy súborov
     const displayName = fileName.length > 30 ? fileName.slice(0, 28) + '…' : fileName;
 
@@ -63,9 +61,9 @@ function renderHistoryCard(item) {
         <div class="history-card ${isInvasive ? 'hc-invasive' : 'hc-safe'}">
             <div class="history-thumb-placeholder">
                 ${item.image_url
-                ? `<img src="${item.image_url}" alt="${displayName}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
-                : (isInvasive ? '⚠️' : '🌿')
-            }
+                    ? `<img src="${item.image_url}" alt="${displayName}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                    : (isInvasive ? '⚠️' : '🌿')
+                }
             </div>
             <div class="history-info">
                 <h3>${isInvasive ? 'Invázny druh' : 'Bezpečný druh'}</h3>
@@ -85,6 +83,7 @@ function renderHistoryCard(item) {
         </div>`;
 }
 
+
 function renderEmptyState() {
     return `
         <div class="empty-state">
@@ -94,3 +93,19 @@ function renderEmptyState() {
             <button class="btn btn-primary" data-page="detect">Analyzovať fotografiu</button>
         </div>`;
 }
+
+
+/**
+ * Cleanup - zmaže starú lokálnu históriu z prechodzieho stavu aplikácie.
+ * Spustí sa automaticky pri načítaní skriptu.
+ */
+(function cleanupOldLocalStorage() {
+    try {
+        if (localStorage.getItem('floraLocalHistory')) {
+            localStorage.removeItem('floraLocalHistory');
+            console.log('✅ Cleared old localStorage history (using backend only now)');
+        }
+    } catch (e) {
+        // localStorage môže byť nedostupný (private mode), ignoruj
+    }
+})();
